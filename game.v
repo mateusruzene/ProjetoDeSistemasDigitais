@@ -1,5 +1,6 @@
 `timescale 1ps/1ps
 `include "dino_states.vh"
+`include "obs.vh"
 
 module game (
     input clk,
@@ -163,24 +164,24 @@ module game (
                         obs_x <= 240;
                         // Escolhe novo obstáculo aleatório usando o contador
                         if (rand_reg[1:0] == 2'd0) begin
-                            obs_type <= STATE_CACTUS; // Cactus
+                            obs_type <= `STATE_CACTUS; // Cactus
                             obs_y <= 97;
                         end else if (rand_reg[1:0] == 2'd1) begin
-                            obs_type <= STATE_TRIPLE_CACTUS; // Cactus Triple
+                            obs_type <= `STATE_TRIPLE_CACTUS; // Cactus Triple
                             obs_y <= 97;
                         end else if (rand_reg[1:0] == 2'd2) begin
-                            obs_type <= STATE_PTERODACTYL_D; // Pterodactyl alto
+                            obs_type <= `STATE_PTERODACTYL_D; // Pterodactyl alto
                             obs_y <= 65;
                         end else begin
-                            obs_type <= STATE_PTERODACTYL_D; // Pterodactyl baixo
+                            obs_type <= `STATE_PTERODACTYL_D; // Pterodactyl baixo
                             obs_y <= 89;
                         end
                     end else begin
-                        if(obs_type == STATE_PTERODACTYL_D) begin
-                            obs_type = STATE_PTERODACTYL_T;
+                        if(obs_type == `STATE_PTERODACTYL_D) begin
+                            obs_type <= leg_toggle ? `STATE_PTERODACTYL_T : `STATE_PTERODACTYL_D;
                             obs_x <= obs_x - 4;
-                        end else if(obs_type == STATE_PTERODACTYL_T) begin
-                            obs_type = STATE_PTERODACTYL_D;
+                        end else if(obs_type == `STATE_PTERODACTYL_T) begin
+                            obs_type <= leg_toggle ? `STATE_PTERODACTYL_D : `STATE_PTERODACTYL_T;
                             obs_x <= obs_x - 4;
                         end else begin
                             obs_x <= obs_x - 3;

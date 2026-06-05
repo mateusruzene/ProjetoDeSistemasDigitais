@@ -97,7 +97,8 @@ module draw (
 
     reg [63:0] row_cactus;
     reg [63:0] row_cactus_triple;
-    reg [63:0] row_pterodactyl;
+    reg [63:0] row_pterodactyl_t;
+    reg [63:0] row_pterodactyl_d;
     reg [63:0] row_cloud;
     reg [63:0] row_horizon;
 
