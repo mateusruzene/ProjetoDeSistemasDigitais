@@ -1,5 +1,6 @@
 `timescale 1ps/1ps
 `include "dino_states.vh" // Não esqueça de incluir o dicionário de estados aqui também!
+`include "obs.vh" // Não esqueça de incluir o dicionário de estados aqui também!
 
 module draw (
     input clk,                 // NOVO: Adicionado o clock para podermos usar a memória interna (BSRAM)
@@ -35,7 +36,8 @@ module draw (
     // Cria as memórias para os novos elementos
     reg [63:0] cactus_rom [39:0];
     reg [63:0] cactus_triple_rom [39:0];
-    reg [63:0] pterodactyl_rom [39:0];
+    reg [63:0] pterodactyl_t_rom [39:0];
+    reg [63:0] pterodactyl_d_rom [39:0];
     reg [63:0] cloud_rom [39:0];
     reg [63:0] horizon_rom [39:0];
 
@@ -49,7 +51,8 @@ module draw (
         
         $readmemb("assets/texturas/cactus.txt", cactus_rom);
         $readmemb("assets/texturas/cactus-triple.txt", cactus_triple_rom);
-        $readmemb("assets/texturas/pterodactyl-t.txt", pterodactyl_rom);
+        $readmemb("assets/texturas/pterodactyl-t.txt", pterodactyl_t_rom);
+        $readmemb("assets/texturas/pterodactyl-d.txt", pterodactyl_d_rom);
         $readmemb("assets/texturas/cloud.txt", cloud_rom);
         $readmemb("assets/texturas/horizon.txt", horizon_rom);
     end
@@ -110,7 +113,8 @@ module draw (
         // Leituras dos Elementos adicionais
         row_cactus        <= cactus_rom[obs_rom_y_index];
         row_cactus_triple <= cactus_triple_rom[obs_rom_y_index];
-        row_pterodactyl   <= pterodactyl_rom[obs_rom_y_index];
+        row_pterodactyl_t   <= pterodactyl_t_rom[obs_rom_y_index];
+        row_pterodactyl_d   <= pterodactyl_d_rom[obs_rom_y_index];
         row_cloud         <= cloud_rom[cloud_rom_y_index];
         row_horizon       <= horizon_rom[horizon_rom_y_index];
     end
@@ -132,9 +136,10 @@ module draw (
 
     // Mux Obstáculo
     wire [63:0] current_obs_row = 
-        (obs_type == 2'd0) ? row_cactus :
-        (obs_type == 2'd1) ? row_cactus_triple :
-                             row_pterodactyl;
+        (obs_type == `STATE_CACTUS) ? row_cactus :
+        (obs_type == `STATE_TRIPLE_CACTUS) ? row_cactus_triple :
+        (obs_type == `STATE_PTERODACTYL_D) ? row_pterodactyl_d : 
+                             row_pterodactyl_t;
     wire obs_pixel_is_solid = current_obs_row[63 - obs_rom_x_index];
     wire obs_pixel_visible  = is_inside_obs_box && obs_pixel_is_solid;
 
