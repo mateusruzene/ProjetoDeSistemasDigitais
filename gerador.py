@@ -19,8 +19,16 @@ def converte_para_fpga(nome_sprite, canvas_largura=64, canvas_altura=40):
         print(f"Aviso: O arquivo '{arquivo_entrada}' não foi encontrado na pasta (pulado).")
         return
 
+    # Define o tamanho máximo do sprite dentro do canvas (Dino é 64x40)
+    limite_w = canvas_largura
+    limite_h = canvas_altura
+    if nome_sprite == "pterodactyl-t" or nome_sprite == "pterodactyl-d":
+        # Deixa o pterodáctilo bem menor (cerca de 50% do tamanho do Dino)
+        limite_w = 34
+        limite_h = 22
+
     # Reduz a imagem mantendo a proporção original
-    img.thumbnail((canvas_largura, canvas_altura), Image.Resampling.LANCZOS)
+    img.thumbnail((limite_w, limite_h), Image.Resampling.LANCZOS)
     
     # Cria o nosso "Canvas" fixo totalmente em branco
     canvas = Image.new('L', (canvas_largura, canvas_altura), color=255)
@@ -62,7 +70,8 @@ sprites = [
     "dino-d-r",       # Abaixado (Perna Direita)
     "cactus",         # Cacto simples
     "cactus-triple",  # Cacto triplo
-    "pterodactyl",    # Pterodáctilo
+    "pterodactyl-t",  # Pterodáctilo top
+    "pterodactyl-d",  # Pterodáctilo down
     "horizon",        # Chão/Cenário
     "cloud",          # Nuvem
     "restart",        # Botão de Restart
