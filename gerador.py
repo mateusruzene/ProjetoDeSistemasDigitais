@@ -1,11 +1,22 @@
+import os
 from PIL import Image
 
-def converte_para_fpga(arquivo_entrada, arquivo_saida, canvas_largura=64, canvas_altura=40):
+# Garante que o script roda no diretório em que ele está localizado
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
+def converte_para_fpga(nome_sprite, canvas_largura=64, canvas_altura=40):
+    arquivo_entrada = f"assets/images/{nome_sprite}.png"
+    arquivo_saida = f"assets/texturas/{nome_sprite}.txt"
+    
+    # Cria o diretório de destino se não existir
+    os.makedirs(os.path.dirname(arquivo_saida), exist_ok=True)
+    
     try:
         # Abre a imagem original e converte para tons de cinza
         img = Image.open(arquivo_entrada).convert('L')
     except FileNotFoundError:
-        print(f"Erro: O arquivo '{arquivo_entrada}' não foi encontrado na pasta.")
+        print(f"Aviso: O arquivo '{arquivo_entrada}' não foi encontrado na pasta (pulado).")
         return
 
     # Reduz a imagem mantendo a proporção original
@@ -17,7 +28,10 @@ def converte_para_fpga(arquivo_entrada, arquivo_saida, canvas_largura=64, canvas
     # Calcula as coordenadas exatas para centralizar no X e colar no chão (Y)
     img_w, img_h = img.size
     offset_x = (canvas_largura - img_w) // 2 
-    offset_y = canvas_altura - img_h          
+    if nome_sprite == "horizon":
+        offset_y = 28  # Posiciona o solo na linha 28 do Canvas para ficar visível (FLOOR_Y + 28 = Y 125)
+    else:
+        offset_y = canvas_altura - img_h
     
     # Cola o dinossauro desenhado dentro do Canvas
     canvas.paste(img, (offset_x, offset_y))
@@ -34,24 +48,30 @@ def converte_para_fpga(arquivo_entrada, arquivo_saida, canvas_largura=64, canvas
                     row_str += "0"
             f.write(row_str + "\n")
 
-    print(f"Sucesso! {arquivo_saida} gerado. (Tamanho original ocupado: {img_w}x{img_h})")
+    print(f"Sucesso! {nome_sprite}.txt gerado em assets/texturas/ (Tamanho original: {img_w}x{img_h})")
 
 # ==========================================================
 # LISTA DE SPRITES DO JOGO
 # ==========================================================
 sprites = [
-    "dino",       # Parado / Pulando
-    "dino-l",     # Correndo (Perna Esquerda)
-    "dino-r",     # Correndo (Perna Direita)
-    "dino-d",     # Morto (Game Over)
-    "dino-d-l",   # Abaixado (Perna Esquerda)
-    "dino-d-r"    # Abaixado (Perna Direita)
+    "dino",           # Parado / Pulando
+    "dino-l",         # Correndo (Perna Esquerda)
+    "dino-r",         # Correndo (Perna Direita)
+    "dino-d",         # Morto (Game Over)
+    "dino-d-l",       # Abaixado (Perna Esquerda)
+    "dino-d-r",       # Abaixado (Perna Direita)
+    "cactus",         # Cacto simples
+    "cactus-triple",  # Cacto triplo
+    "pterodactyl",    # Pterodáctilo
+    "horizon",        # Chão/Cenário
+    "cloud",          # Nuvem
+    "restart",        # Botão de Restart
 ]
 
 print("Iniciando conversão em lote...")
 
 # Roda a função para cada nome na lista
 for sprite in sprites:
-    converte_para_fpga(f"{sprite}.png", f"{sprite}.txt")
+    converte_para_fpga(sprite)
 
-print("\nTodos os arquivos foram gerados com sucesso para o FPGA!")
+print("\nTodos os arquivos existentes foram processados e salvos em assets/texturas/!")

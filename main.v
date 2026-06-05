@@ -27,6 +27,14 @@ module main(
     wire w_menu_wants_reset;
     wire w_screen_resetn = ~w_menu_wants_reset;
 
+    // Novos fios para o cenário, obstáculos e colisões
+    wire w_collision_pixel;
+    wire signed [8:0] w_obs_x;
+    wire [1:0] w_obs_type;
+    wire [7:0] w_obs_y;
+    wire [5:0] w_horizon_offset;
+    wire signed [8:0] w_cloud_x;
+
 
     // ==========================================
     // 1. MOTOR DE TELA (LCD Driver)
@@ -55,7 +63,14 @@ module main(
         .button_duck(button_2),
         .dino_y(w_dino_y),            // Informa a altura atual do Dino
         .menu_reset_out(w_menu_wants_reset),
-        .dino_state(dino_state)
+        .dino_state(dino_state),
+        
+        .collision_pixel(w_collision_pixel),
+        .obs_x(w_obs_x),
+        .obs_type(w_obs_type),
+        .obs_y(w_obs_y),
+        .horizon_offset(w_horizon_offset),
+        .cloud_x(w_cloud_x)
     );
 
     // ==========================================
@@ -67,7 +82,14 @@ module main(
         .y_cnt(w_y_cnt),             // Lê o Y atual da tela
         .dino_y(w_dino_y),           // Lê o Y atual do Dino (Física)
         .dino_state(dino_state),     // Lê o estado atual do dino
-        .pixel_color(w_pixel_color)  // Devolve a cor final para o fio
+        .pixel_color(w_pixel_color), // Devolve a cor final para o fio
+        
+        .obs_x(w_obs_x),
+        .obs_type(w_obs_type),
+        .obs_y(w_obs_y),
+        .horizon_offset(w_horizon_offset),
+        .cloud_x(w_cloud_x),
+        .collision_pixel(w_collision_pixel)
     );
 
 endmodule
