@@ -49,7 +49,7 @@ module draw (
         
         $readmemb("assets/texturas/cactus.txt", cactus_rom);
         $readmemb("assets/texturas/cactus-triple.txt", cactus_triple_rom);
-        $readmemb("assets/texturas/pterodactyl.txt", pterodactyl_rom);
+        $readmemb("assets/texturas/pterodactyl-t.txt", pterodactyl_rom);
         $readmemb("assets/texturas/cloud.txt", cloud_rom);
         $readmemb("assets/texturas/horizon.txt", horizon_rom);
     end
