@@ -24,6 +24,10 @@ module main(
     wire [15:0] w_pixel_color;
     wire [2:0] dino_state; // definido em dino_states.vh
 
+    // Fios da pontuação
+    wire [3:0] w_score_d0, w_score_d1, w_score_d2, w_score_d3, w_score_d4;
+    wire [3:0] w_hi_d0, w_hi_d1, w_hi_d2, w_hi_d3, w_hi_d4;
+
     wire w_menu_wants_reset;
     wire w_screen_resetn = ~w_menu_wants_reset;
 
@@ -70,7 +74,10 @@ module main(
         .obs_type(w_obs_type),
         .obs_y(w_obs_y),
         .horizon_offset(w_horizon_offset),
-        .cloud_x(w_cloud_x)
+        .cloud_x(w_cloud_x),
+        
+        .score_d0(w_score_d0), .score_d1(w_score_d1), .score_d2(w_score_d2), .score_d3(w_score_d3), .score_d4(w_score_d4),
+        .hi_d0(w_hi_d0), .hi_d1(w_hi_d1), .hi_d2(w_hi_d2), .hi_d3(w_hi_d3), .hi_d4(w_hi_d4)
     );
 
     // ==========================================
@@ -89,7 +96,10 @@ module main(
         .obs_y(w_obs_y),
         .horizon_offset(w_horizon_offset),
         .cloud_x(w_cloud_x),
-        .collision_pixel(w_collision_pixel)
+        .collision_pixel(w_collision_pixel),
+        
+        .score_d0(w_score_d0), .score_d1(w_score_d1), .score_d2(w_score_d2), .score_d3(w_score_d3), .score_d4(w_score_d4),
+        .hi_d0(w_hi_d0), .hi_d1(w_hi_d1), .hi_d2(w_hi_d2), .hi_d3(w_hi_d3), .hi_d4(w_hi_d4)
     );
 
 endmodule

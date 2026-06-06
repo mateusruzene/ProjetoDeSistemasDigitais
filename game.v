@@ -17,7 +17,19 @@ module game (
     output reg [1:0] obs_type = 0, // 0 = cactus, 1 = cactus-triple, 2 = pterodactyl
     output reg [7:0] obs_y = 97,
     output reg [5:0] horizon_offset = 0,
-    output reg signed [8:0] cloud_x = 240
+    output reg signed [8:0] cloud_x = 240,
+
+    // Pontuações BCD
+    output reg [3:0] score_d0 = 0,
+    output reg [3:0] score_d1 = 0,
+    output reg [3:0] score_d2 = 0,
+    output reg [3:0] score_d3 = 0,
+    output reg [3:0] score_d4 = 0,
+    output reg [3:0] hi_d0 = 0,
+    output reg [3:0] hi_d1 = 0,
+    output reg [3:0] hi_d2 = 0,
+    output reg [3:0] hi_d3 = 0,
+    output reg [3:0] hi_d4 = 0
 );
 
     localparam FLOOR_Y = 97;
@@ -31,6 +43,7 @@ module game (
     reg [18:0] game_tick_cnt = 0;
     reg [3:0] anim_tick_cnt = 0; // Metrônomo para as perninhas
     reg leg_toggle = 0;          // 0 = Perna Esquerda, 1 = Perna Direita
+    reg [2:0] score_frame_cnt = 0; // Contador de frames para pontuação
     
     // Filtros de ruído para os dois botões
     reg jump_r1=1, jump_r2=1;
@@ -87,6 +100,13 @@ module game (
                     cloud_x <= 240;
                     horizon_offset <= 0;
                     collision_latched <= 0;
+
+                    // Reseta score atual
+                    score_d0 <= 0;
+                    score_d1 <= 0;
+                    score_d2 <= 0;
+                    score_d3 <= 0;
+                    score_d4 <= 0;
                 end else begin
                     menu_reset_out <= 1'b0;
                 end
@@ -99,6 +119,14 @@ module game (
                 if (collision_latched) begin
                     dino_state <= `STATE_DEAD;
                     dino_vel <= 0;
+                    // Atualiza high score se a pontuação atual for maior
+                    if ({score_d4, score_d3, score_d2, score_d1, score_d0} > {hi_d4, hi_d3, hi_d2, hi_d1, hi_d0}) begin
+                        hi_d4 <= score_d4;
+                        hi_d3 <= score_d3;
+                        hi_d2 <= score_d2;
+                        hi_d1 <= score_d1;
+                        hi_d0 <= score_d0;
+                    end
                 end else begin
                     // B) Movimentação do Dino (Física)
                     // Está no chão?
@@ -186,6 +214,38 @@ module game (
                         end else begin
                             obs_x <= obs_x - 3;
                         end
+                    end
+
+                    // Incremento de Pontuação BCD a cada 6 frames
+                    if (score_frame_cnt == 5) begin
+                        score_frame_cnt <= 0;
+                        if (score_d0 == 9) begin
+                            score_d0 <= 0;
+                            if (score_d1 == 9) begin
+                                score_d1 <= 0;
+                                if (score_d2 == 9) begin
+                                    score_d2 <= 0;
+                                    if (score_d3 == 9) begin
+                                        score_d3 <= 0;
+                                        if (score_d4 == 9) begin
+                                            score_d4 <= 0;
+                                        end else begin
+                                            score_d4 <= score_d4 + 1;
+                                        end
+                                    end else begin
+                                        score_d3 <= score_d3 + 1;
+                                    end
+                                end else begin
+                                    score_d2 <= score_d2 + 1;
+                                end
+                            end else begin
+                                score_d1 <= score_d1 + 1;
+                            end
+                        end else begin
+                            score_d0 <= score_d0 + 1;
+                        end
+                    end else begin
+                        score_frame_cnt <= score_frame_cnt + 1;
                     end
                 end
             end
