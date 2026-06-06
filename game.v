@@ -75,6 +75,8 @@ module game (
             if (dino_state == `STATE_DEAD) begin
                 // SE ESTIVER MORTO: Trava tudo. Espera o botão para resetar.
                 dino_vel <= 0;
+
+                
                 if (jump_r2 == 1'b0) begin 
                     menu_reset_out <= 1'b1; // Manda apagar a tela
                     dino_y <= FLOOR_Y;      // Ressuscita o Dino
@@ -171,10 +173,10 @@ module game (
                             obs_y <= 97;
                         end else if (rand_reg[1:0] == 2'd2) begin
                             obs_type <= `STATE_PTERODACTYL_D; // Pterodactyl alto
-                            obs_y <= 65;
+                            obs_y <= 78;
                         end else begin
                             obs_type <= `STATE_PTERODACTYL_D; // Pterodactyl baixo
-                            obs_y <= 89;
+                            obs_y <= 95;
                         end
                     end else begin
                         if(obs_type == `STATE_PTERODACTYL_D) begin
