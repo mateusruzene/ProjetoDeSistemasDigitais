@@ -35,7 +35,7 @@ module game (
     localparam FLOOR_Y = 97;
     localparam GRAVITY = 1;
     localparam FAST_FALL_GRAVITY = 4; // Gravidade extra pesada para quando abaixar no ar
-    localparam JUMP_FORCE = -11;
+    localparam JUMP_FORCE = -12;
 
     reg signed [7:0] dino_vel = 0;
     
@@ -201,7 +201,7 @@ module game (
                             obs_y <= 97;
                         end else if (rand_reg[1:0] == 2'd2) begin
                             obs_type <= `STATE_PTERODACTYL_D; // Pterodactyl alto
-                            obs_y <= 78;
+                            obs_y <= 70;
                         end else begin
                             obs_type <= `STATE_PTERODACTYL_D; // Pterodactyl baixo
                             obs_y <= 95;
