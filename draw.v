@@ -23,6 +23,8 @@ module draw (
     localparam DINO_X = 0;
     localparam DINO_WIDTH = 64;
     localparam DINO_HEIGHT = 40;
+    localparam PTERO_HEIGHT = 22;
+    localparam PTERO_WIDTH = 34;
     localparam FLOOR_Y = 97;
 
     // Cria a memória e carrega o arquivo TXT
@@ -34,10 +36,10 @@ module draw (
     reg [(DINO_WIDTH - 1):0] dino_duck_l [(DINO_HEIGHT - 1):0]; // ducking(abaixando) left foot up
 
     // Cria as memórias para os novos elementos
-    reg [63:0] cactus_rom [39:0];
-    reg [63:0] cactus_triple_rom [39:0];
-    reg [63:0] pterodactyl_t_rom [39:0];
-    reg [63:0] pterodactyl_d_rom [39:0];
+    reg [(DINO_WIDTH - 1):0] cactus_rom [(DINO_HEIGHT - 1):0];
+    reg [(DINO_WIDTH - 1):0] cactus_triple_rom [(DINO_HEIGHT - 1):0];
+    reg [(PTERO_WIDTH - 1):0] pterodactyl_t_rom [(PTERO_HEIGHT - 1):0];
+    reg [(PTERO_WIDTH - 1):0] pterodactyl_d_rom [(PTERO_HEIGHT - 1):0];
     reg [63:0] cloud_rom [39:0];
     reg [63:0] horizon_rom [39:0];
 

@@ -31,24 +31,24 @@ def converte_para_fpga(nome_sprite, canvas_largura=64, canvas_altura=40):
     img.thumbnail((limite_w, limite_h), Image.Resampling.LANCZOS)
     
     # Cria o nosso "Canvas" fixo totalmente em branco
-    canvas = Image.new('L', (canvas_largura, canvas_altura), color=255)
+    canvas = Image.new('L', (limite_w, limite_h), color=255)
     
     # Calcula as coordenadas exatas para centralizar no X e colar no chão (Y)
     img_w, img_h = img.size
-    offset_x = (canvas_largura - img_w) // 2 
+    offset_x = (limite_w - img_w) // 2 
     if nome_sprite == "horizon":
         offset_y = 28  # Posiciona o solo na linha 28 do Canvas para ficar visível (FLOOR_Y + 28 = Y 125)
     else:
-        offset_y = canvas_altura - img_h
+        offset_y = limite_h - img_h
     
     # Cola o dinossauro desenhado dentro do Canvas
     canvas.paste(img, (offset_x, offset_y))
     
     # Faz a varredura gerando o TXT
     with open(arquivo_saida, 'w') as f:
-        for y in range(canvas_altura):
+        for y in range(limite_h):
             row_str = ""
-            for x in range(canvas_largura):
+            for x in range(limite_w):
                 pixel = canvas.getpixel((x, y))
                 if pixel < 128:
                     row_str += "1"
