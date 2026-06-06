@@ -15,6 +15,18 @@ module draw (
     input [5:0] horizon_offset,
     input signed [8:0] cloud_x,
     
+    // Pontuações BCD
+    input [3:0] score_d0,
+    input [3:0] score_d1,
+    input [3:0] score_d2,
+    input [3:0] score_d3,
+    input [3:0] score_d4,
+    input [3:0] hi_d0,
+    input [3:0] hi_d1,
+    input [3:0] hi_d2,
+    input [3:0] hi_d3,
+    input [3:0] hi_d4,
+    
     output collision_pixel,
     output [15:0] pixel_color
 );
@@ -187,7 +199,111 @@ module draw (
     // Colisão pixel-perfect: se os pixels do Dino e do Obstáculo são ambos sólidos
     assign collision_pixel = dino_pixel_visible && obs_pixel_visible;
 
+    // ---------------------------------------------------------------------
+    // DIGITS AND LETTERS RENDERING (5x7 Font)
+    // ---------------------------------------------------------------------
+    wire show_hi = (dino_state == `STATE_DEAD) || (hi_d4 != 0 || hi_d3 != 0 || hi_d2 != 0 || hi_d1 != 0 || hi_d0 != 0);
+
+    reg [3:0] selected_char;
+    reg [2:0] cx;
+    reg is_inside_char;
+
+    always @(*) begin
+        selected_char = 4'd12; // default space
+        cx = 3'd0;
+        is_inside_char = 0;
+        if (y_cnt >= 8'd10 && y_cnt < 8'd17) begin
+            if (x_cnt >= 8'd200 && x_cnt < 8'd205) begin
+                selected_char = score_d4;
+                cx = x_cnt - 8'd200;
+                is_inside_char = 1;
+            end else if (x_cnt >= 8'd206 && x_cnt < 8'd211) begin
+                selected_char = score_d3;
+                cx = x_cnt - 8'd206;
+                is_inside_char = 1;
+            end else if (x_cnt >= 8'd212 && x_cnt < 8'd217) begin
+                selected_char = score_d2;
+                cx = x_cnt - 8'd212;
+                is_inside_char = 1;
+            end else if (x_cnt >= 8'd218 && x_cnt < 8'd223) begin
+                selected_char = score_d1;
+                cx = x_cnt - 8'd218;
+                is_inside_char = 1;
+            end else if (x_cnt >= 8'd224 && x_cnt < 8'd229) begin
+                selected_char = score_d0;
+                cx = x_cnt - 8'd224;
+                is_inside_char = 1;
+            end else if (show_hi) begin
+                if (x_cnt >= 8'd140 && x_cnt < 8'd145) begin
+                    selected_char = 4'd10; // H
+                    cx = x_cnt - 8'd140;
+                    is_inside_char = 1;
+                end else if (x_cnt >= 8'd146 && x_cnt < 8'd151) begin
+                    selected_char = 4'd11; // I
+                    cx = x_cnt - 8'd146;
+                    is_inside_char = 1;
+                end else if (x_cnt >= 8'd156 && x_cnt < 8'd161) begin
+                    selected_char = hi_d4;
+                    cx = x_cnt - 8'd156;
+                    is_inside_char = 1;
+                end else if (x_cnt >= 8'd162 && x_cnt < 8'd167) begin
+                    selected_char = hi_d3;
+                    cx = x_cnt - 8'd162;
+                    is_inside_char = 1;
+                end else if (x_cnt >= 8'd168 && x_cnt < 8'd173) begin
+                    selected_char = hi_d2;
+                    cx = x_cnt - 8'd168;
+                    is_inside_char = 1;
+                end else if (x_cnt >= 8'd174 && x_cnt < 8'd179) begin
+                    selected_char = hi_d1;
+                    cx = x_cnt - 8'd174;
+                    is_inside_char = 1;
+                end else if (x_cnt >= 8'd180 && x_cnt < 8'd185) begin
+                    selected_char = hi_d0;
+                    cx = x_cnt - 8'd180;
+                    is_inside_char = 1;
+                end
+            end
+        end
+    end
+
+    // Alinhamento de latência (atraso de 1 ciclo para bater com as texturas da ROM)
+    reg [3:0] r_selected_char;
+    reg [2:0] r_cx;
+    reg [2:0] r_cy;
+    reg r_is_inside_char;
+
+    always @(posedge clk) begin
+        r_selected_char  <= selected_char;
+        r_cx             <= cx;
+        r_cy             <= y_cnt - 8'd10;
+        r_is_inside_char <= is_inside_char;
+    end
+
+    reg [34:0] char_pattern;
+    always @(*) begin
+        case (r_selected_char)
+            4'd0:  char_pattern = 35'b11111_10001_10001_10001_10001_10001_11111;
+            4'd1:  char_pattern = 35'b00100_01100_00100_00100_00100_00100_01110;
+            4'd2:  char_pattern = 35'b11111_00001_00001_11111_10000_10000_11111;
+            4'd3:  char_pattern = 35'b11111_00001_00001_11111_00001_00001_11111;
+            4'd4:  char_pattern = 35'b10001_10001_10001_11111_00001_00001_00001;
+            4'd5:  char_pattern = 35'b11111_10000_10000_11111_00001_00001_11111;
+            4'd6:  char_pattern = 35'b11111_10000_10000_11111_10001_10001_11111;
+            4'd7:  char_pattern = 35'b11111_00001_00010_00100_01000_01000_01000;
+            4'd8:  char_pattern = 35'b11111_10001_10001_11111_10001_10001_11111;
+            4'd9:  char_pattern = 35'b11111_10001_10001_11111_00001_00001_11111;
+            4'd10: char_pattern = 35'b10001_10001_10001_11111_10001_10001_10001; // H
+            4'd11: char_pattern = 35'b11111_00100_00100_00100_00100_00100_11111; // I
+            default: char_pattern = 35'b0; // Espaço
+        endcase
+    end
+
+    wire [5:0] pattern_idx = (r_cy * 5) + r_cx;
+    wire char_pixel_is_solid = (pattern_idx < 6'd35) ? char_pattern[6'd34 - pattern_idx] : 1'b0;
+    wire char_pixel_visible = r_is_inside_char && char_pixel_is_solid;
+
      // Cor final: pinta pixel como branco (FFFF) se qualquer elemento for sólido
-     assign pixel_color = (gameover_visible || dino_pixel_visible || obs_pixel_visible || horizon_pixel_visible || cloud_pixel_visible) ? 16'hFFFF : 16'h0000;
+     assign pixel_color = (gameover_visible || dino_pixel_visible || obs_pixel_visible || horizon_pixel_visible || cloud_pixel_visible || char_pixel_visible) ? 16'hFFFF : 16'h0000;
 
 endmodule

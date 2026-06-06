@@ -21,6 +21,26 @@ module tb_game;
     reg [7:0] x_cnt;
     reg [7:0] y_cnt;
 
+    wire [3:0] score_d0, score_d1, score_d2, score_d3, score_d4;
+    wire [3:0] hi_d0, hi_d1, hi_d2, hi_d3, hi_d4;
+
+    reg sim_scan_enable = 1;
+
+    always @(posedge clk) begin
+        if (sim_scan_enable) begin
+            if (x_cnt == 239) begin
+                x_cnt <= 0;
+                if (y_cnt == 134) begin
+                    y_cnt <= 0;
+                end else begin
+                    y_cnt <= y_cnt + 1;
+                end
+            end else begin
+                x_cnt <= x_cnt + 1;
+            end
+        end
+    end
+
     // Instanciar a física do jogo
     game physics (
         .clk(clk),
@@ -34,7 +54,9 @@ module tb_game;
         .obs_type(obs_type),
         .obs_y(obs_y),
         .horizon_offset(horizon_offset),
-        .cloud_x(cloud_x)
+        .cloud_x(cloud_x),
+        .score_d0(score_d0), .score_d1(score_d1), .score_d2(score_d2), .score_d3(score_d3), .score_d4(score_d4),
+        .hi_d0(hi_d0), .hi_d1(hi_d1), .hi_d2(hi_d2), .hi_d3(hi_d3), .hi_d4(hi_d4)
     );
 
     // Instanciar o gerador de desenho
@@ -50,7 +72,9 @@ module tb_game;
         .horizon_offset(horizon_offset),
         .cloud_x(cloud_x),
         .collision_pixel(collision_pixel),
-        .pixel_color(pixel_color)
+        .pixel_color(pixel_color),
+        .score_d0(score_d0), .score_d1(score_d1), .score_d2(score_d2), .score_d3(score_d3), .score_d4(score_d4),
+        .hi_d0(hi_d0), .hi_d1(hi_d1), .hi_d2(hi_d2), .hi_d3(hi_d3), .hi_d4(hi_d4)
     );
 
     // Clock de 27MHz -> Período de ~37ns (18.5ns em nível alto/baixo)
@@ -81,14 +105,14 @@ module tb_game;
 
         // Simula 180 frames (~3 segundos a 60 FPS)
         for (frame = 0; frame < 180; frame = frame + 1) begin
-            // Faz o dinossauro pular no frame 20
-            if (frame == 20) begin
+            // Se o dino morrer, pressiona o botão de pulo no frame seguinte para reiniciar
+            if (dino_state == `STATE_DEAD && button_jump == 1) begin
+                $display("Frame %0d: Dino morreu com pontuacao %d%d%d%d%d! Pressionando botao de pulo para reiniciar...", 
+                         frame, score_d4, score_d3, score_d2, score_d1, score_d0);
                 button_jump = 0; // Pressionado (Active Low)
-                $display("Frame %0d: Botao de Pulo Pressionado!", frame);
-            end
-            if (frame == 25) begin
+            end else if (button_jump == 0) begin
+                $display("Frame %0d: Soltando botao de pulo...", frame);
                 button_jump = 1; // Solto
-                $display("Frame %0d: Botao de Pulo Solto!", frame);
             end
 
             // Executa os ciclos de clock correspondentes a 1 frame (450000 ciclos)
@@ -96,6 +120,7 @@ module tb_game;
 
             // A cada 30 frames, vamos exportar o frame em formato PPM
             if (frame % 30 == 0) begin
+                sim_scan_enable = 0;
                 $sformat(filename, "assets/images_geradas/frame_%0d.ppm", frame);
                 file = $fopen(filename, "w");
                 if (file) begin
@@ -122,6 +147,7 @@ module tb_game;
                     end
                     $fclose(file);
                     $display("Frame %0d exportado com sucesso para %s", frame, filename);
+                    sim_scan_enable = 1;
                 end else begin
                     $display("Erro ao criar o arquivo PPM: %s. Certifique-se de que a pasta 'assets/images_geradas' existe.", filename);
                 end
