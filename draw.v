@@ -118,41 +118,37 @@ module draw (
     // ---------------------------------------------------------------------
     // LEITURA SINCRONIZADA DAS MEMÓRIAS (COM ÍNDICE SEGURO)
     // ---------------------------------------------------------------------
-    reg [(DINO_WIDTH - 1):0] row_stand;
-    reg [(DINO_WIDTH - 1):0] row_r;
-    reg [(DINO_WIDTH - 1):0] row_l;
-    reg [(DINO_WIDTH - 1):0] row_d;
-    reg [(DINO_WIDTH - 1):0] row_duck_r;
-    reg [(DINO_WIDTH - 1):0] row_duck_l;
+    reg [(DINO_WIDTH - 1):0] current_dino_row;
+    reg [63:0] current_obs_row;
 
-    reg [63:0] row_cactus;
-    reg [63:0] row_cactus_triple;
-    reg [63:0] row_pterodactyl_t;
-    reg [63:0] row_pterodactyl_d;
     reg [63:0] row_cloud;
     reg [63:0] row_horizon;
     reg [63:0] row_gameover;
 
     wire [5:0] safe_gameover_y = inside_gameover ? gameover_rom_y_index : 6'b0;
 
-
     always @(posedge clk) begin
-        // Leituras do Dino (sem proteção – assume que índices são válidos apenas quando usados)
-        row_stand  <= dino_rom[rom_y_index];
-        row_l      <= dino_l[rom_y_index];
-        row_r      <= dino_r[rom_y_index];
-        row_duck_l <= dino_duck_l[rom_y_index];
-        row_duck_r <= dino_duck_r[rom_y_index];
-        row_d      <= dino_d[rom_y_index];
+        // MUX de leitura do Dino
+        case (dino_state)
+            `STATE_STAND:  current_dino_row <= dino_rom[rom_y_index];
+            `STATE_RUN_L:  current_dino_row <= dino_l[rom_y_index];
+            `STATE_RUN_R:  current_dino_row <= dino_r[rom_y_index];
+            `STATE_DUCK_L: current_dino_row <= dino_duck_l[rom_y_index];
+            `STATE_DUCK_R: current_dino_row <= dino_duck_r[rom_y_index];
+            default:       current_dino_row <= dino_d[rom_y_index]; // STATE_DEAD
+        endcase
 
-        // Leituras dos Elementos adicionais
-        row_cactus        <= cactus_rom[obs_rom_y_index];
-        row_cactus_triple <= cactus_triple_rom[obs_rom_y_index];
-        row_pterodactyl_t <= pterodactyl_t_rom[obs_rom_y_index];
-        row_pterodactyl_d <= pterodactyl_d_rom[obs_rom_y_index];
-        row_cloud         <= cloud_rom[cloud_rom_y_index];
-        row_horizon       <= horizon_rom[horizon_rom_y_index];
+        // MUX de leitura do Obstáculo
+        case (obs_type)
+            `STATE_CACTUS:        current_obs_row <= cactus_rom[obs_rom_y_index];
+            `STATE_TRIPLE_CACTUS: current_obs_row <= cactus_triple_rom[obs_rom_y_index];
+            `STATE_PTERODACTYL_D: current_obs_row <= pterodactyl_d_rom[obs_rom_y_index];
+            default:              current_obs_row <= pterodactyl_t_rom[obs_rom_y_index]; // STATE_PTERODACTYL_T
+        endcase
 
+        // Leituras dos Elementos únicos
+        row_cloud    <= cloud_rom[cloud_rom_y_index];
+        row_horizon  <= horizon_rom[horizon_rom_y_index];
         row_gameover <= gameover_rom[safe_gameover_y];
     end
 
@@ -161,22 +157,10 @@ module draw (
     // ---------------------------------------------------------------------
     
     // Dino
-    wire [(DINO_WIDTH - 1):0] current_rom_row = 
-        (dino_state == `STATE_STAND)  ? row_stand :
-        (dino_state == `STATE_RUN_L)  ? row_l :
-        (dino_state == `STATE_RUN_R)  ? row_r :
-        (dino_state == `STATE_DUCK_L) ? row_duck_l :
-        (dino_state == `STATE_DUCK_R) ? row_duck_r :
-                                        row_d;
-    wire dino_pixel_is_solid = current_rom_row[(DINO_WIDTH - 1) - rom_x_index];
+    wire dino_pixel_is_solid = current_dino_row[(DINO_WIDTH - 1) - rom_x_index];
     wire dino_pixel_visible  = is_inside_dino_box && dino_pixel_is_solid;
 
     // Obstáculo
-    wire [63:0] current_obs_row = 
-        (obs_type == `STATE_CACTUS) ? row_cactus :
-        (obs_type == `STATE_TRIPLE_CACTUS) ? row_cactus_triple :
-        (obs_type == `STATE_PTERODACTYL_D) ? row_pterodactyl_d : 
-                                             row_pterodactyl_t;
     wire obs_pixel_is_solid = current_obs_row[63 - obs_rom_x_index];
     wire obs_pixel_visible  = is_inside_obs_box && obs_pixel_is_solid;
 
