@@ -72,18 +72,18 @@ module game (
             game_tick_cnt <= 0;
             
             // -----------------------------------------------------
-            // 1. ATUALIZA O METRÔNOMO DE ANIMAÇÃO
+            // ATUALIZA O METRÔNOMO DE ANIMAÇÃO
             // -----------------------------------------------------
             // A cada 6 frames (~10 vezes por segundo), troca a perna
             if (anim_tick_cnt == 6) begin
                 anim_tick_cnt <= 0;
-                leg_toggle <= ~leg_toggle; 
+                leg_toggle <= ~leg_toggle;
             end else begin
                 anim_tick_cnt <= anim_tick_cnt + 1;
             end
 
             // -----------------------------------------------------
-            // 2. MÁQUINA DE ESTADOS E FÍSICA UNIDAS
+            // MÁQUINA DE ESTADOS E FÍSICA UNIDAS
             // -----------------------------------------------------
             if (dino_state == `STATE_DEAD) begin
                 // SE ESTIVER MORTO: Trava tudo. Espera o botão para resetar.
@@ -117,7 +117,7 @@ module game (
                 // SE ESTIVER VIVO:
                 menu_reset_out <= 1'b0;
 
-                // A) Verifica colisão pendente
+                // Verifica colisão
                 if (collision_latched) begin
                     dino_state <= `STATE_DEAD;
                     dino_vel <= 0;
@@ -130,7 +130,7 @@ module game (
                         hi_d0 <= score_d0;
                     end
                 end else begin
-                    // B) Movimentação do Dino (Física)
+                    // Movimentação do Dino (Física)
                     // Está no chão?
                     if (dino_y == FLOOR_Y) begin
                         if ((jump_r2 == 1'b0) && (duck_r2 == 1'b1)) begin 
@@ -172,7 +172,7 @@ module game (
                         end
                     end
 
-                    // C) Atualiza o cenário e obstáculos (Scrolling)
+                    // Atualiza o cenário e obstáculos
                     
                     // Nuvem (move 1px a cada 4 frames)
                     if (cloud_div == 3) begin

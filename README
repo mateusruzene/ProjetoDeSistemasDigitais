@@ -1,0 +1,22 @@
+# Jogo do Dinossauro do Chrome Para Verilog
+
+## Hardware Esperado
+O código foi escrito com verilog puro, sem utilizar IP cores, portanto, quase
+a sua integridade pode ser usada em qualquer FPGA, desde que o display utilizado
+seja de conexão SPI, com 240X135 pixels e que utilize um driver ST7789V3.
+No entanto, deve-se atentar a váriaveis específicas como a frequência de 
+operação do chip, para garantir o funcionamento normal.
+
+## Uso esperado:
+Por mais que o código seja genérico em sua grande parte, o projeto foi
+desenvolvido para a placa Sipeed Tang 
+Nano 9K(https://wiki.sipeed.com/hardware/en/tang/Tang-Nano-9K/Nano-9K.html),
+portanto, o aquivo .cst foi pensado nessa mesma placa, logo, deve ser feito um
+projeto no Gowin IDE com os seguintes elementos no src/:
+* draw.v
+* game.v
+* screen.v
+* main.v
+* Todos os aquivo .vh
+* A pasta assets/texturas com todos os seus arquivos
+

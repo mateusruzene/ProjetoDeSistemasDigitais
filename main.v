@@ -16,7 +16,7 @@ module main(
 );
 
     // ==========================================
-    // FIOS DE CONEXÃO INTERNA (O "Placa-Mãe")
+    // FIOS DE CONEXÃO INTERNA
     // ==========================================
     wire [7:0] w_x_cnt;
     wire [7:0] w_y_cnt;
@@ -41,7 +41,7 @@ module main(
 
 
     // ==========================================
-    // 1. MOTOR DE TELA (LCD Driver)
+    // DRIVER DA TELA LCD
     // ==========================================
     screen tela (
         .clk(clk),
@@ -59,7 +59,7 @@ module main(
     );
 
     // ==========================================
-    // 2. FÍSICA DO JOGO (Game Engine)
+    // ENGINE DO JOGO
     // ==========================================
     game physics (
         .clk(clk),
@@ -81,7 +81,7 @@ module main(
     );
 
     // ==========================================
-    // 3. GERADOR DE VÍDEO (Placa de Vídeo)
+    // GERADOR DE VÍDEO
     // ==========================================
     draw game_draw (
         .clk(clk),

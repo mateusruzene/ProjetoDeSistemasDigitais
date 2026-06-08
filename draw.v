@@ -81,7 +81,7 @@ module draw (
     end
 
     // ---------------------------------------------------------------------
-    // 1. DETERMINAÇÃO DE BOXES E COORDENADAS
+    // DETERMINAÇÃO DE BOXES E COORDENADAS
     // ---------------------------------------------------------------------
     wire signed [8:0] s_x_cnt = {1'b0, x_cnt};
 
@@ -116,7 +116,7 @@ module draw (
     wire [5:0] gameover_rom_x_index = x_cnt - GAMEOVER_X;
 
     // ---------------------------------------------------------------------
-    // 2. LEITURA SINCRONIZADA DAS MEMÓRIAS (COM ÍNDICE SEGURO)
+    // LEITURA SINCRONIZADA DAS MEMÓRIAS (COM ÍNDICE SEGURO)
     // ---------------------------------------------------------------------
     reg [(DINO_WIDTH - 1):0] row_stand;
     reg [(DINO_WIDTH - 1):0] row_r;
@@ -157,7 +157,7 @@ module draw (
     end
 
     // ---------------------------------------------------------------------
-    // 3. SELEÇÃO DE PIXELS
+    // SELEÇÃO DE PIXELS
     // ---------------------------------------------------------------------
     
     // Dino
@@ -193,14 +193,14 @@ module draw (
     wire gameover_visible = inside_gameover && gameover_pixel_solid;
 
     // ---------------------------------------------------------------------
-    // 4. SAÍDA DE COR E DETECÇÃO DE COLISÃO
+    // SAÍDA DE COR E DETECÇÃO DE COLISÃO
     // ---------------------------------------------------------------------
     
     // Colisão pixel-perfect: se os pixels do Dino e do Obstáculo são ambos sólidos
     assign collision_pixel = dino_pixel_visible && obs_pixel_visible;
 
     // ---------------------------------------------------------------------
-    // DIGITS AND LETTERS RENDERING (5x7 Font)
+    // RENDERIZAÇÃO DE TEXTO
     // ---------------------------------------------------------------------
     wire show_hi = (dino_state == `STATE_DEAD) || (hi_d4 != 0 || hi_d3 != 0 || hi_d2 != 0 || hi_d1 != 0 || hi_d0 != 0);
 
