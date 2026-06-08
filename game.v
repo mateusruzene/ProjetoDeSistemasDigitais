@@ -91,7 +91,7 @@ module game (
 
                 
                 if (jump_r2 == 1'b0) begin 
-                    menu_reset_out <= 1'b1; // Manda apagar a tela
+                    menu_reset_out <= 1'b1;
                     dino_y <= FLOOR_Y;      // Ressuscita o Dino
                     dino_state <= `STATE_STAND;
                     
@@ -193,18 +193,21 @@ module game (
                     if (obs_x <= -9'sd64) begin
                         obs_x <= 240;
                         // Escolhe novo obstáculo aleatório usando o contador
-                        if (rand_reg[1:0] == 2'd0) begin
+                        if (rand_reg[2:0] == 3'd0) begin
                             obs_type <= `STATE_CACTUS; // Cactus
                             obs_y <= 97;
-                        end else if (rand_reg[1:0] == 2'd1) begin
+                        end else if (rand_reg[2:0] == 3'd1) begin
                             obs_type <= `STATE_TRIPLE_CACTUS; // Cactus Triple
                             obs_y <= 97;
-                        end else if (rand_reg[1:0] == 2'd2) begin
+                        end else if (rand_reg[2:0] == 3'd2) begin
                             obs_type <= `STATE_PTERODACTYL_D; // Pterodactyl alto
                             obs_y <= 70;
-                        end else begin
+                        end else if (rand_reg[2:0] == 3'd3) begin
                             obs_type <= `STATE_PTERODACTYL_D; // Pterodactyl baixo
                             obs_y <= 95;
+                        end else begin
+                            obs_type <= `STATE_PTERODACTYL_D; // Pterodactyl médio
+                            obs_y <= 85;
                         end
                     end else begin
                         if(obs_type == `STATE_PTERODACTYL_D) begin
