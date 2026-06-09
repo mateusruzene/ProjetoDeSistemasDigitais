@@ -29,6 +29,7 @@ module main(
     wire [3:0] w_hi_d0, w_hi_d1, w_hi_d2, w_hi_d3, w_hi_d4;
 
     wire w_menu_wants_reset;
+    wire w_screen_resetn = ~w_menu_wants_reset;
 
     // Novos fios para o cenário, obstáculos e colisões
     wire w_collision_pixel;
@@ -44,7 +45,7 @@ module main(
     // ==========================================
     screen tela (
         .clk(clk),
-        .resetn(1'b1),
+        .resetn(w_screen_resetn),
         .pixel_color(w_pixel_color), // Lê a cor que o game_draw calculou
         .x_cnt(w_x_cnt),             // Informa qual X está desenhando
         .y_cnt(w_y_cnt),             // Informa qual Y está desenhando
